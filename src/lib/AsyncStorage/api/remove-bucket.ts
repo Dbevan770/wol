@@ -1,17 +1,19 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import type {
+  APIResponse,
+  APIOptions,
+  BucketKey,
+} from '@/lib/AsyncStorage/types';
 
-import type { APIResponse, APIOptions } from '@/lib/AsyncStorage/types';
-
-import { handleError } from '@/lib/AsyncStorage/utils';
+import { removeBucket, handleError } from '@/lib/AsyncStorage/utils';
 
 export const removeData = async (
-  key: string,
+  bucketKey: BucketKey,
   options?: Partial<APIOptions>,
 ): Promise<APIResponse> => {
   const { verbose = false } = options ?? {};
 
   try {
-    await AsyncStorage.removeItem(key);
+    await removeBucket(bucketKey);
 
     return {
       success: true,
@@ -22,7 +24,7 @@ export const removeData = async (
       }),
     };
   } catch (e) {
-    const error = handleError(e, 500);
+    const error = handleError(e);
 
     return {
       success: false,
