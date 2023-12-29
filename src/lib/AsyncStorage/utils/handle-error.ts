@@ -1,20 +1,36 @@
-import { RESPONSE_CODES } from '@/lib/AsyncStorage/types/constants';
+import { APIError } from '@/lib/AsyncStorage/types/error';
 
-import type { StatusCode, APIError } from '@/lib/AsyncStorage/types';
+export const handleError = (e: unknown): string => {
+  let message: string = '';
 
-export const handleError = (e: unknown, errCode: StatusCode): APIError => {
-  let status: StatusCode = errCode;
-  let statusMsg: string = RESPONSE_CODES[status];
+  if (e instanceof APIError) {
+    const { name, message: msg, statusCode, cause } = e;
 
-  let msg: string = `[${status} -- ${statusMsg}]: `;
+    message = `[${statusCode} -- ${name}]: ${msg}`;
+    if (cause) {
+      message += `\n${cause}`;
+    }
 
-  if (e instanceof Error) {
-    msg += e.message;
-  } else if (typeof e === 'string') {
-    msg += e;
-  } else {
-    msg += 'Unknown error';
+    return message;
   }
 
-  return { status, msg };
+  if (e instanceof Error) {
+    const { name, message: msg, stack } = e;
+    message = `[${name}]: ${msg}`;
+
+    if (stack) {
+      message += `\n${stack}`;
+    }
+
+    return message;
+  }
+
+  if (typeof e === 'string') {
+    message = e;
+    return message;
+  }
+
+  message =
+    'An unknown error occurred. Please contact the developer to submit a bug report.';
+  return message;
 };
