@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { z } from 'zod';
 
 import { NetworkModule } from '@/modules';
-import { useDevicesContext } from '@/hooks';
+import { useAppSelector } from '@/stores';
+import { selectSelectedDevice } from '@/slices/DevicesSlice';
 
 const schema = z.object({
   ip: z.string().min(7).max(15).ip(),
@@ -15,8 +17,9 @@ const schema = z.object({
 const BROADCAST_IP = '192.168.50.255' as const; // TODO: Remove hard-coded IP
 
 export const useWakeOnLan = () => {
-  const { selectedDevice } = useDevicesContext();
   const { sendWakeOnLan } = NetworkModule;
+  const selectedDeviceMemo = useMemo(() => selectSelectedDevice, []);
+  const selectedDevice = useAppSelector(selectedDeviceMemo);
 
   const wakeOnLan = async () => {
     if (!selectedDevice) {

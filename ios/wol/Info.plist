@@ -32,15 +32,17 @@
 		<true/>
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Send Wake on Lan packet to local devices</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Send Wake on LAN packet to devices on your local network</string>
+	<key>OSBundleUsageDescription</key>
 	<string></string>
 	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<string>LaunchScreen.storyboard</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDefault</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

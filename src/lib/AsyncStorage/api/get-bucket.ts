@@ -23,7 +23,9 @@ export const getBucket = async <TData = unknown>(
       });
     }
 
-    const bucket: BucketValue<TData> = JSON.parse(bucketJSON) as TData;
+    const bucket: BucketValue<TData> = JSON.parse(bucketJSON);
+
+    console.log(`Bucket [${bucketKey}]:`, bucket);
 
     return {
       success: true,

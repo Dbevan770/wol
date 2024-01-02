@@ -1,16 +1,20 @@
+import { useMemo } from 'react';
 import { View, Pressable } from 'react-native';
 import { SplitDropdown } from '@/components/Elements';
 import { GridSvg } from '@/assets/GridSvg';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPowerOff } from '@fortawesome/free-solid-svg-icons';
-import { useDevicesContext, useWakeOnLan } from '@/hooks';
+import { useWakeOnLan } from '@/hooks';
+import { useAppSelector } from '@/stores';
+import { selectStoredDevices } from '@/slices/DevicesSlice';
 
 import { Svg, Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 
 import { styles } from './styles';
 
 export const PowerOn = () => {
-  const { devices } = useDevicesContext();
+  const selectDevices = useMemo(() => selectStoredDevices, []);
+  const devices = useAppSelector(selectDevices);
   const { wakeOnLan } = useWakeOnLan();
 
   return (

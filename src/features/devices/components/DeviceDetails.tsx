@@ -3,7 +3,12 @@ import { DeviceDetailsButtons } from '@/features/devices/components';
 
 import type { Device } from '@/types';
 
-export const DeviceDetails = ({ device }: { device: Device }) => {
+type DeviceDetailsProps = {
+  device: Device;
+  forgetDevice: (id: string) => void;
+};
+
+export const DeviceDetails = ({ device, forgetDevice }: DeviceDetailsProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.detailsTable}>
@@ -17,7 +22,7 @@ export const DeviceDetails = ({ device }: { device: Device }) => {
           <Text style={styles.detailText}>{device.ip || 'Undefined'}</Text>
         </View>
       </View>
-      <DeviceDetailsButtons device={device} />
+      <DeviceDetailsButtons device={device} forgetDevice={forgetDevice} />
     </View>
   );
 };

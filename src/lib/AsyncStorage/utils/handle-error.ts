@@ -1,6 +1,8 @@
-import { APIError } from '@/lib/AsyncStorage/types/error';
+import { APIError, StatusCode } from '@/lib/AsyncStorage/types/error';
 
-export const handleError = (e: unknown): string => {
+export const handleError = (
+  e: unknown,
+): { message: string; code: StatusCode } => {
   let message: string = '';
 
   if (e instanceof APIError) {
@@ -11,7 +13,7 @@ export const handleError = (e: unknown): string => {
       message += `\n${cause}`;
     }
 
-    return message;
+    return { message, code: statusCode };
   }
 
   if (e instanceof Error) {
@@ -22,15 +24,15 @@ export const handleError = (e: unknown): string => {
       message += `\n${stack}`;
     }
 
-    return message;
+    return { message, code: 500 };
   }
 
   if (typeof e === 'string') {
     message = e;
-    return message;
+    return { message, code: 500 };
   }
 
   message =
     'An unknown error occurred. Please contact the developer to submit a bug report.';
-  return message;
+  return { message, code: 500 };
 };
