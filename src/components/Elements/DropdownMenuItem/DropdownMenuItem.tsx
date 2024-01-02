@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
-import { useDevicesContext } from '@/hooks';
+import { selectSelectedDevice } from '@/slices/DevicesSlice';
+import { useAppSelector } from '@/stores';
 
 import type { Device } from '@/types';
 
@@ -12,7 +14,8 @@ export const DropdownMenuItem = ({
   device,
   closeMenu,
 }: DropdownMenuItemProps) => {
-  const { selectedDevice, setSelectedDevice } = useDevicesContext();
+  const selectedDeviceMemo = useMemo(() => selectSelectedDevice, []);
+  const selectedDevice = useAppSelector(selectedDeviceMemo);
   const isSelectedItem = selectedDevice?.id === device.id;
 
   const handleChangeSelection = () => {
@@ -20,7 +23,6 @@ export const DropdownMenuItem = ({
       closeMenu(false);
     }
 
-    setSelectedDevice(device);
     closeMenu(false);
   };
 

@@ -15,6 +15,7 @@ module.exports = {
           '@/modules': './src/modules',
           '@/providers': './src/providers',
           '@/routes': './src/routes',
+          '@/slices': './src/slices',
           '@/stores': './src/stores',
           '@/test': './src/test',
           '@/types': './src/types',

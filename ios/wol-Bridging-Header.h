@@ -4,9 +4,5 @@
 //
 //  Created by Danny on 1/1/24.
 //
-
-#ifndef wol_Bridging_Header_h
-#define wol_Bridging_Header_h
-
-
-#endif /* wol_Bridging_Header_h */
+#import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>

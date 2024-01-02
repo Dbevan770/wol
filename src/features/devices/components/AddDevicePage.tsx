@@ -1,9 +1,8 @@
 import { ScrollView, ActivityIndicator, View } from 'react-native';
 import { AddDeviceForm } from '@/features/devices/components';
-import { useAddDevice } from '@/hooks';
 
 export const AddDevicePage = () => {
-  const { isLoading } = useAddDevice();
+  const isLoading = false;
   return (
     <ScrollView style={{ height: '100%', backgroundColor: '#111622' }}>
       {isLoading ? (

@@ -1,9 +1,12 @@
+import { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { DeviceList } from './DeviceList';
-import { useDevicesContext } from '@/hooks/useDevicesContext';
+import { selectStoredDevices } from '@/slices/DevicesSlice';
+import { useAppSelector } from '@/stores';
 
 export const ManageDevicesPage = () => {
-  const { devices } = useDevicesContext();
+  const selectDevices = useMemo(() => selectStoredDevices, []);
+  const devices = useAppSelector(selectDevices);
 
   return (
     <>
@@ -18,7 +21,9 @@ export const ManageDevicesPage = () => {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <Text style={{ color: '#ffffff' }}>No Devices Found!</Text>
+          <Text style={{ color: '#ffffff', fontSize: 24 }}>
+            No Devices Found!
+          </Text>
         </View>
       )}
     </>

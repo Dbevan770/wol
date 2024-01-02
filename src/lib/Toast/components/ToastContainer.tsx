@@ -7,11 +7,11 @@ import { useToast } from '@/lib/Toast/hooks';
 export const ToastContainer = () => {
   const { toasts, showToast } = useToast();
 
-  useEffect(() => {
-    showToast('I AM TOAST!', {
-      position: 'TOP_RIGHT',
-    });
-  }, []);
+  // useEffect(() => {
+  //   showToast('I AM TOAST!', {
+  //     position: 'TOP_RIGHT',
+  //   });
+  // }, []);
 
   return (
     <View
@@ -21,9 +21,9 @@ export const ToastContainer = () => {
         flexDirection: 'column',
       }}
       pointerEvents="box-none">
-      {toasts.length > 0
+      {/* {toasts.length > 0
         ? toasts.map((toastData, i) => <Toast key={i} {...toastData} />)
-        : null}
+        : null} */}
     </View>
   );
 };

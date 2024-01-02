@@ -13,6 +13,6 @@ export type NewDevice = {
 export type Device = NewDevice & {
   id: string;
   status: DeviceStatus;
-  createdAt: Date;
-  lastSeen?: Date;
+  createdAt: Date | string;
+  lastSeen?: Date | string;
 };

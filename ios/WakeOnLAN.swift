@@ -1,5 +1,5 @@
 //
-//  RCTNetworkModule.swift
+//  WakeOnLAN.swift
 //  wol
 //
 //  Created by Danny on 12/22/23.
@@ -9,7 +9,7 @@ import Foundation
 import Network
 
 // Define the network module class
-@objc(NetworkModule) class NetworkModule: NSObject
+@objc(NetworkModule) class NetworkModule : NSObject
 {
   // Inform React Native that the main queue is not
   // needed for this native module
