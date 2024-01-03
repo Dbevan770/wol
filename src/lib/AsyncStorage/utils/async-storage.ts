@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import type { RawBuckets } from '../types/storage';
+import { KeyValuePair } from '@react-native-async-storage/async-storage/lib/typescript/types';
 
 const {
   clear,
@@ -54,8 +53,8 @@ export const mergeBucket = async (
 
 export const multiGetBuckets = async (
   bucketKeys: string[],
-): Promise<RawBuckets> => {
-  return (await multiGet(bucketKeys)) as RawBuckets;
+): Promise<readonly KeyValuePair[]> => {
+  return await multiGet(bucketKeys);
 };
 
 export const multiRemoveBuckets = async (
