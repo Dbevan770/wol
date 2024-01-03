@@ -1,11 +1,16 @@
 import { FLAGS } from '@/types';
 
-type Flag = typeof FLAGS;
+/* Flags are used for values that are set up by the app
+ * but may frequently change. Generally, these values will
+ * identify criteria that will trigger some sort of action
+ */
 
-type FlagKeys = keyof Flag;
+type FlagKeys = (typeof FLAGS)[keyof typeof FLAGS];
 
-export type FlagValue = boolean | string | number;
+type FlagTypes = {
+  isFirstLaunch: boolean;
+};
 
 export type Flags = {
-  [key in FlagKeys]: FlagValue;
+  [K in FlagKeys]: FlagTypes[K];
 };

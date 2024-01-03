@@ -1,18 +1,13 @@
-import type {
-  APIResponse,
-  APIOptions,
-  BucketKey,
-  BucketValue,
-} from '@/lib/AsyncStorage/types';
+import type { APIResponse, APIOptions } from '@/lib/AsyncStorage/types';
 
-import { APIError } from '@/lib/AsyncStorage/types';
+import { APIError, Storage, StorageKey } from '@/lib/AsyncStorage/types';
 
 import { getBucketJSON, handleError } from '@/lib/AsyncStorage/utils/';
 
-export const getBucket = async <TData = unknown>(
-  bucketKey: BucketKey,
+export const getBucket = async <TStorage extends Storage>(
+  bucketKey: StorageKey<TStorage>,
   options?: Partial<APIOptions>,
-): Promise<APIResponse<TData>> => {
+): Promise<APIResponse<string>> => {
   try {
     const bucketJSON = await getBucketJSON(bucketKey);
     if (bucketJSON === null) {
@@ -23,13 +18,9 @@ export const getBucket = async <TData = unknown>(
       });
     }
 
-    const bucket: BucketValue<TData> = JSON.parse(bucketJSON);
-
-    console.log(`Bucket [${bucketKey}]:`, bucket);
-
     return {
       success: true,
-      data: bucket,
+      data: bucketJSON,
       error: null,
       ...(options?.verbose && {
         statusMsg: `Retrieved bucket '${bucketKey}' from the device storage successfully.`,

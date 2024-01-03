@@ -1,13 +1,14 @@
 import type {
   APIResponse,
   APIOptions,
-  BucketKey,
+  Storage,
+  StorageKey,
 } from '@/lib/AsyncStorage/types';
 
 import { removeBucket, handleError } from '@/lib/AsyncStorage/utils';
 
-export const removeData = async (
-  bucketKey: BucketKey,
+export const removeData = async <TStorage extends Storage>(
+  bucketKey: StorageKey<TStorage>,
   options?: Partial<APIOptions>,
 ): Promise<APIResponse> => {
   const { verbose = false } = options ?? {};
