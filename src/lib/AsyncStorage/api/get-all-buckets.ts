@@ -10,7 +10,7 @@ import {
 
 export const getAllBuckets = async <TStorage extends Storage>(
   options?: Partial<APIOptions>,
-): Promise<APIResponse> => {
+): Promise<APIResponse<TStorage>> => {
   const { verbose = false } = options ?? {};
 
   try {
