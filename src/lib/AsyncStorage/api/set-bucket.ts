@@ -1,16 +1,17 @@
 import type {
   APIResponse,
   APIOptions,
-  BucketKey,
+  Storage,
+  StorageKey,
 } from '@/lib/AsyncStorage/types';
 
-import { setBucket, handleError } from '@/lib/AsyncStorage/utils';
+import { setBucketData, handleError } from '@/lib/AsyncStorage/utils';
 
-export const setBucketData = async <TValue = unknown>(
-  bucketKey: BucketKey,
-  value: TValue,
+export const setBucket = async <TStorage extends Storage>(
+  bucketKey: StorageKey<TStorage>,
+  value: TStorage[StorageKey<TStorage>],
   options?: Partial<APIOptions>,
-): Promise<APIResponse<TValue>> => {
+): Promise<APIResponse<null>> => {
   const { verbose = false } = options ?? {};
 
   try {
@@ -19,7 +20,7 @@ export const setBucketData = async <TValue = unknown>(
 
     // Save the JSON string to the matching bucket
     // key in the device storage.
-    await setBucket(bucketKey, bucketValue);
+    await setBucketData(bucketKey, bucketValue);
 
     // setBucket() does not return anything, so we
     // return a success response here and no data.

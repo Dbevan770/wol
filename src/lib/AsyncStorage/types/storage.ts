@@ -10,11 +10,7 @@ export type StorageBuckets = Readonly<typeof STORAGE_BUCKETS>;
 
 export type StorageBucketKey = Readonly<keyof StorageBuckets>;
 
-export type StorageBucketKeys = ReadonlyArray<StorageBucketKey>;
-
 export type BucketKey = StorageBuckets[StorageBucketKey];
-
-export type BucketKeys = ReadonlyArray<BucketKey>;
 
 export type BucketJSON = string;
 
@@ -29,3 +25,13 @@ export type BucketValues<TValue = unknown> = BucketValue<TValue>[];
 export type Bucket<TValue = unknown> = [BucketKey, BucketValue<TValue>];
 
 export type Buckets<TValue = unknown> = Bucket<TValue>[];
+
+interface BaseStorage {
+  [key: string]: unknown;
+}
+
+export type Storage<T extends BaseStorage = any> = {
+  [K in keyof T]: T[K];
+};
+
+export type StorageKey<TStorage> = Extract<keyof TStorage, string>;

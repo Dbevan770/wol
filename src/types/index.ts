@@ -3,3 +3,4 @@ export * from './device';
 export * from './error';
 export * from './flags';
 export * from './stack';
+export * from './storage';

@@ -17,6 +17,7 @@ export const API_RESPONSE = {
 
 export const STORAGE_BUCKETS = {
   DEVICES: 'devices',
-  SETTINGS: 'settings',
   FLAGS: 'flags',
+  SETTINGS: 'settings',
+  USER_SETTINGS: 'userSettings',
 } as const;
