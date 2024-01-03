@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useDevicesContext } from './useDevicesContext';
+import { useAppDispatch } from '@/stores';
+import { addDevice as rtkAddDevice } from '@/slices/DevicesSlice';
+import { createDevice } from '@/features/devices/utils';
 
-import { Device, type NewDevice } from '@/types';
+import type { NewDevice } from '@/types';
 
 export const useAddDevice = () => {
-  // Context
-  const { addDevice: ctxAddDevice } = useDevicesContext();
+  // Redux
+  const dispatch = useAppDispatch();
 
   // Boolean states
   const [isLoading, setIsLoading] = useState(false);
@@ -15,24 +17,22 @@ export const useAddDevice = () => {
   // Strings
   const [error, setError] = useState('');
 
-  // Data
-  const [device, setDevice] = useState<Device | null>(null);
-
   // Functions
   const addDevice = async (newDevice: NewDevice) => {
     setIsLoading(true);
 
-    const response = await ctxAddDevice(newDevice);
+    const device = createDevice(newDevice);
 
-    if ('error' in response) {
+    try {
+      await dispatch(rtkAddDevice(device)).unwrap();
+    } catch (err) {
       setIsError(true);
-      setError(response.error as string);
+      setError(err as string);
       setIsLoading(false);
       return;
     }
 
     setIsSuccess(true);
-    setDevice(response.data as Device);
     setIsLoading(false);
   };
 
@@ -41,7 +41,6 @@ export const useAddDevice = () => {
     setIsError(false);
     setIsSuccess(false);
     setError('');
-    setDevice(null);
   };
 
   // Return
@@ -51,7 +50,6 @@ export const useAddDevice = () => {
     isError,
     isSuccess,
     error,
-    device,
     reset,
   };
 };

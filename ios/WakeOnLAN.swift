@@ -1,5 +1,5 @@
 //
-//  RCTNetworkModule.swift
+//  WakeOnLAN.swift
 //  wol
 //
 //  Created by Danny on 12/22/23.
@@ -9,15 +9,11 @@ import Foundation
 import Network
 
 // Define the network module class
-@objc(NetworkModule)
-class RCTNetworkModuleSwift: NSObject
+@objc(NetworkModule) class NetworkModule : NSObject
 {
   // Inform React Native that the main queue is not
   // needed for this native module
-  @objc
-  static func requiresMainQueueSetup() -> Bool {
-    return false
-  }
+  @objc static func requiresMainQueueSetup() -> Bool { return false }
   
   // Define the sendWakeOnLan function
   @objc(sendWakeOnLan:targetMac:)
@@ -32,6 +28,15 @@ class RCTNetworkModuleSwift: NSObject
     {
       udpClient.closeConnection();
     }
+  }
+  
+  @objc
+  func getNetworkInfo()
+  {
+    let monitor = PathMonitor()
+    
+    // Some sort of observation logic that triggers
+    // gatherNetworkInfo() or some other methods
   }
   
   func setupConnection(broadcastIP: String, targetMac: String) -> UDPClient

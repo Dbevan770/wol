@@ -6,20 +6,24 @@ import {
   ActionSheetIOS,
 } from 'react-native';
 
-import { useDevicesContext } from '@/hooks/useDevicesContext';
-
 import type { Device } from '@/types';
 
-export const DeviceDetailsButtons = ({ device }: { device: Device }) => {
-  const { removeDevice } = useDevicesContext();
+type DeviceDetailsButtonsProps = {
+  device: Device;
+  forgetDevice: (id: string) => void;
+};
 
+export const DeviceDetailsButtons = ({
+  device,
+  forgetDevice,
+}: DeviceDetailsButtonsProps) => {
   const onPress = async () => {
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: ['Cancel', 'Forget Device'],
+        options: ['Cancel', 'Forget'],
         destructiveButtonIndex: 1,
         cancelButtonIndex: 0,
-        title: `Forget '${device.name}'?`,
+        title: `Really Forget '${device.name}'?`,
         userInterfaceStyle: 'dark',
       },
       buttonIndex => {
@@ -28,7 +32,7 @@ export const DeviceDetailsButtons = ({ device }: { device: Device }) => {
           return;
         } else if (buttonIndex === 1) {
           // Forget Device Action
-          removeDevice(device);
+          forgetDevice(device.id);
         } else {
           // Default Action
           return;

@@ -1,4 +1,8 @@
 //
-//  Use this file to import your target's public headers that you would like to expose to Swift.
+//  wol-Bridging-Header.h
+//  wol
 //
-
+//  Created by Danny on 1/1/24.
+//
+#import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>

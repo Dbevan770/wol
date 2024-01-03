@@ -1,3 +1,1 @@
-export type ToastProviderProps = {
-  children: React.ReactNode;
-};
+export type ToastProviderProps = {};

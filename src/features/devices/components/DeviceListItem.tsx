@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
   faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 import { DeviceDetails } from '@/features/devices/components';
-import { useDevicesContext } from '@/hooks/useDevicesContext';
+import { useForgetDevice } from '@/hooks';
 
 import { Device } from '@/types';
 
@@ -24,7 +24,8 @@ type DeviceProps = {
 
 export const DeviceListItem = ({ device }: DeviceProps) => {
   const [expanded, setExpanded] = useState(false);
-  const { isLoading } = useDevicesContext();
+  const { forgetDevice, isLoading, isError, isSuccess, error, reset } =
+    useForgetDevice();
 
   const getStatusDetails = (status: string) => {
     switch (status) {
@@ -40,6 +41,19 @@ export const DeviceListItem = ({ device }: DeviceProps) => {
   };
 
   const { status, color } = getStatusDetails(device.status);
+
+  useEffect(() => {
+    if (isError) {
+      console.log(error);
+      return;
+    }
+
+    if (isSuccess) {
+      console.log('Successfully forgot device');
+      reset();
+      return;
+    }
+  }, [isSuccess, isError, error]);
 
   return (
     <View style={styles.deviceContainer}>
@@ -84,7 +98,9 @@ export const DeviceListItem = ({ device }: DeviceProps) => {
             </View>
           </View>
         </Pressable>
-        {expanded ? <DeviceDetails device={device} /> : null}
+        {expanded ? (
+          <DeviceDetails device={device} forgetDevice={forgetDevice} />
+        ) : null}
       </View>
     </View>
   );
