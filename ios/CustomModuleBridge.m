@@ -10,13 +10,13 @@
 
 @interface RCT_EXTERN_MODULE(NetworkInfo, NSObject)
 
-RCT_EXTERN_METHOD(initPathMonitor)
+RCT_EXTERN_METHOD(startPathMonitor)
+
+RCT_EXTERN_METHOD(getNetworkingInfo:(NSString *)activeInterface)
 
 @end
 
 @interface RCT_EXTERN_MODULE(NetworkModule, NSObject)
-
-RCT_EXTERN_METHOD(getNetworkInfo)
 
 RCT_EXTERN_METHOD(sendWakeOnLan:(NSString *)broadcastIP targetMac:(NSString *)targetMac)
 

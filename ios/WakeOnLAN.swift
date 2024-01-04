@@ -30,15 +30,6 @@ import Network
     }
   }
   
-  @objc
-  func getNetworkInfo()
-  {
-    let monitor = PathMonitor()
-    
-    // Some sort of observation logic that triggers
-    // gatherNetworkInfo() or some other methods
-  }
-  
   func setupConnection(broadcastIP: String, targetMac: String) -> UDPClient
   {
     let host = NWEndpoint.Host(broadcastIP);

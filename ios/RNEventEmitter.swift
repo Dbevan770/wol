@@ -28,7 +28,7 @@ open class RNEventEmitter : RCTEventEmitter
   }
   
   open override func supportedEvents() -> [String]! {
-    ["Networking"]
+    ["Networking", "NetworkInfo"]
   }
   
   public static var emitter: RCTEventEmitter!

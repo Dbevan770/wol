@@ -9,152 +9,173 @@ import Foundation
 
 public class NetInfo
 {
-  // Network Information
-  internal final var host: String? // Interface's assigned IP Address [i.e. 192.168.1.1]
-  internal final var broadcast: String? // The broadcast address for the subnet the interface belongs to [i.e. 192.168.1.255]
-  internal final var netmask: String? // The netmask for the interface [i.e. 255.255.255.0]
-  internal final var interface: String? // The name of the interface [i.e. en0]
-  
-  // Pointers
-  private var ifaddr: UnsafeMutablePointer<ifaddrs>? = nil;
-  private var ifa: UnsafeMutablePointer<ifaddrs>;
-  private var prevPtr: UnsafeMutablePointer<ifaddrs>? = nil;
-  private var nextPtr: UnsafeMutablePointer<ifaddrs>? = nil;
-  private var addrPtr: UnsafeMutablePointer<sockaddr>? = nil;
-  private var dstAddrPtr: UnsafeMutablePointer<sockaddr>? = nil;
-  private var maskPtr: UnsafeMutablePointer<sockaddr>? = nil;
-  private var infPtr: UnsafeMutablePointer<CChar>? = nil;
-  
-  // Pointees
-  private var addr: sockaddr? = nil;
-  private var dstAddr: sockaddr? = nil;
-  private var mask: sockaddr? = nil;
-  
-  public init?()
-  {
-    if getifaddrs(&self.ifaddr) == 0 {
-      self.ifa = self.ifaddr!;
-    } else {
-      return nil;
+  struct NetworkInfo {
+    var host: String;
+    var broadcast: String;
+    var netmask: String;
+    var interface: String;
+    
+    func toDictionary() -> [String: Any]
+    {
+      var dict = [String: Any]()
+      dict["host"] = host
+      dict["broadcast"] = broadcast
+      dict["netmask"] = netmask
+      dict["interface"] = interface
+      return dict
     }
   }
   
-  public func getNetInfo(activeInterface: String)
+  private var eventPayload = NetworkInfo(
+    host: "",
+    broadcast: "",
+    netmask: "",
+    interface: ""
+  )
+  
+  // Pointers
+  private var ifaddr: UnsafeMutablePointer<ifaddrs>?;
+  private static var maxHost: [CChar] = [CChar](repeating: 0, count: Int(NI_MAXHOST));
+  
+  private var event = RNEventEmitter.Event(
+    success: false,
+    payload: nil,
+    error: nil
+  )
+  
+  private enum EventType {
+    case success
+    case error
+  }
+  
+  private enum NetInfoError: Error {
+    case pointerMismatch
+    case missingInterface
+    case missingSocket
+    case invalidAddress
+    case invalidProtocol
+    case nameResolutionFailed
+    case stringConversionFailure
+    
+    var localizedDescription: String
+    {
+      switch self
+      {
+      case .pointerMismatch:
+        return "Pointer mismatch error occured."
+      case .missingInterface:
+        return "No interfaces found. Ensure your device networking card is functioning properly and try again."
+      case .missingSocket:
+        return "Socket is null and will not resolve."
+      case .invalidAddress:
+        return "Interface does not have an assigned address which is required to indentify the protocol."
+      case .invalidProtocol:
+        return "Interface protocol is not IPv4 or IPv6 and is not supported."
+      case .nameResolutionFailed:
+        return "Failed to parse human readable name from passed in socket."
+      case .stringConversionFailure:
+        return "Failed to convert socket to String."
+      }
+    }
+  }
+  
+  public init?()
+  {
+    guard getifaddrs(&self.ifaddr) == 0 else {
+      return nil
+    }
+  }
+  
+  public func getNetInfo(activeInterface: String) throws
   {
     guard let initialIfa = ifaddr else {
-      self.log(msg: "Head pointer does not match the first pointer in the interfaces linked list. Exiting...")
-      return
+      throw NetInfoError.pointerMismatch
     }
-    
-    // Added prevPtr check to prevent infinite loops
+
     for ifa in sequence(first: initialIfa, next: { $0.pointee.ifa_next })
     {
       // Immediately check if the current interface is the passed in
       // active interface.
-      infPtr = ifa.pointee.ifa_name
-      let interfaceName = String(cString: infPtr!)
+      guard let inf = ifa.pointee.ifa_name else {
+        throw NetInfoError.missingInterface
+      }
+      
+      var interfaceName = String(cString: inf)
       
       guard interfaceName == activeInterface else {
         continue
       }
       
-      // Set up each Ptr with its initial value
-      addrPtr = ifa.pointee.ifa_addr
-      dstAddrPtr = ifa.pointee.ifa_dstaddr
-      maskPtr = ifa.pointee.ifa_netmask
+      guard let addrPtr = ifa.pointee.ifa_addr else {
+        throw NetInfoError.invalidAddress
+      }
       
-      // Store the sockaddrs of each pointer
-      addr = addrPtr != nil ? addrPtr?.pointee : nil
-      dstAddr = dstAddrPtr != nil ? dstAddrPtr?.pointee : nil
-      mask = maskPtr != nil ? maskPtr?.pointee : nil
-            
-      guard validateNetFamily() else {
+      let proto = addrPtr.pointee.sa_family
+
+      guard (proto == AF_INET || proto == AF_INET6) else {
         continue
       }
       
-      if (!getHostName())
-      {
-        print("Failed to get hostname for the current interface. Continuing anyway...");
-      }
+      let hostSocket = ifa.pointee.ifa_addr
+      let broadcastSocket = ifa.pointee.ifa_dstaddr
+      let netmaskSocket = ifa.pointee.ifa_netmask
       
-      if (!getBroadcast())
-      {
-        print("FATAL ERROR: Did not resolve broadcast address. User will need to provide it manually.")
-        break
-      }
-      
-      continue
+      print("Processing Hostname")
+      eventPayload.host = try getNameInfo(socket: hostSocket?.pointee)
+      print("Processing Broadcast")
+      eventPayload.broadcast = try getNameInfo(socket: broadcastSocket?.pointee)
+      print("Processing Netmask")
+      eventPayload.netmask = try getNameInfo(socket: netmaskSocket?.pointee)
+      eventPayload.interface = interfaceName
     }
     
-    cleanup()
+    self.sendEvent(eventType: EventType.success, eventPayload: eventPayload.toDictionary(), eventError: nil)
+    
+    // Cleanup by dealloc'ing the memory used to gather this info
+    self.cleanup()
   }
   
-  private func getHostName() -> Bool
+  private func getNameInfo(socket: sockaddr?) throws -> String
   {
-    var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+    guard var ptr = socket else {
+      return "Undefined"
+    }
     
-    if (getnameinfo(&addr!, socklen_t((addr?.sa_len)!), &hostname, socklen_t(hostname.count), nil, socklen_t(0), NI_NUMERICHOST)) != 0
+    let result = getnameinfo(&ptr, socklen_t(ptr.sa_len), &NetInfo.maxHost, socklen_t(NetInfo.maxHost.count), nil, socklen_t(0), NI_NUMERICHOST)
+    
+    guard result == 0 else {
+      return "Undefined"
+    }
+    
+    guard let nameString = String(validatingUTF8: NetInfo.maxHost) else {
+      throw NetInfoError.stringConversionFailure
+    }
+    
+    return nameString
+  }
+  
+  private func sendEvent(eventType: EventType, eventPayload: Any?, eventError: String?)
+  {
+    print("Build event for notification")
+    switch eventType
     {
-      print("getnameinfo Failed to resolve hostname.");
-      return false
+    case .success:
+      self.event.success = true
+      self.event.payload = eventPayload
+      self.event.error = nil
+    case .error:
+      self.event.success = false
+      self.event.payload = nil
+      self.event.error = eventError
     }
     
-    let hostString = String(validatingUTF8: hostname)
-    
-    guard hostString != nil else {
-      print("Failed to validate hostname CChar array as a String.");
-      return false
-    }
-    
-    host = hostString
-    return true
+    self.notifyListeners()
   }
   
-  private func getBroadcast() -> Bool
+  private func notifyListeners()
   {
-    let socklen = dstAddr != nil ? dstAddr?.sa_len : nil
-    
-    guard socklen != nil else {
-      return false
-    }
-    
-    var broadcastName = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-    
-    if getnameinfo(&dstAddr!,
-                   socklen_t(socklen ?? 0),
-                   &broadcastName,
-                   socklen_t(broadcastName.count),
-                   nil, socklen_t(0),
-                   NI_NUMERICHOST) != 0
-    {
-      print("getnameinfo Failed to resolve broadcast address.")
-      return false
-    }
-    
-    let broadcastAddr = String(validatingUTF8: broadcastName)
-    
-    guard broadcastAddr != nil else {
-      print("Failed to validate broadcast CChar array as a String.")
-      return false
-    }
-    
-    broadcast = broadcastAddr
-    return true
-  }
-  
-  private func validateNetFamily() -> Bool
-  {
-    guard ((addr?.sa_family)! == UInt8(AF_INET) || (addr?.sa_family)! == UInt8(AF_INET6)) else {
-      print("Current interface address is not IPv4 or IPv6 and is not supported.");
-      return false
-    }
-    
-    return true
-  }
-  
-  private func log(msg: String)
-  {
-    print("[NET INFO] -- \(msg)")
+    print("Notifying listeners!")
+    RNEventEmitter.emitter.sendEvent(withName: "NetworkInfo", body: self.event.toDictionary())
   }
   
   private func cleanup()
