@@ -1,9 +1,10 @@
 import { NativeModules } from 'react-native';
 import type { NativeModule } from 'react-native';
 
-type PathMonitorType = NativeModule & {
-  startPathMonitor(): void;
+type NetworkInfoType = NativeModule & {
   getNetworkingInfo(activeInterface: string): void;
 };
 
-export const PathMonitor: PathMonitorType = NativeModules.NetworkInfo;
+const { NetworkInfo } = NativeModules;
+
+export default NetworkInfo as NetworkInfoType;
